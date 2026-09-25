@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+model Parent {
+  id        String    @id @default(uuid())
+  name      String
+  email     String
+  timezone  String
+  createdAt DateTime  @default(now())
+
+  bookings Booking[]
+}
+
+model Mentor {
+  id           String               @id @default(uuid())
+  name         String
+  email        String               @unique
+  timezone     String
+  active       Boolean              @default(true)
+  createdAt    DateTime             @default(now())
+
+  availability MentorAvailability[]
+  bookings     Booking[]
+
+  @@index([active])
+}
+
+model MentorAvailability {
+  id        String @id @default(uuid())
+  mentorId  String
+  dayOfWeek Int
+  startTime String
+  endTime   String
+
+  mentor Mentor @relation(
+    fields: [mentorId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  @@index([mentorId, dayOfWeek])
+}
+
+model Booking {
+  id             String        @id @default(uuid())
+  parentId       String
+  mentorId       String
+  startTimeUtc   DateTime
+  endTimeUtc     DateTime
+  parentTimezone String
+  status         BookingStatus @default(CONFIRMED)
+  meetingLink    String        @unique
+  createdAt      DateTime      @default(now())
+
+  parent Parent @relation(
+    fields: [parentId],
+    references: [id],
+    onDelete: Restrict
+  )
+
+  mentor Mentor @relation(
+    fields: [mentorId],
+    references: [id],
+    onDelete: Restrict
+  )
+
+  @@unique([mentorId, startTimeUtc])
+  @@index([mentorId, startTimeUtc])
+  @@index([parentId])
+}
