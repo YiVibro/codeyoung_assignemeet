@@ -12,22 +12,22 @@ enum BookingStatus {
 }
 
 model Parent {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   name      String
-  email     String
+  email     String   @unique
   timezone  String
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   bookings Booking[]
 }
 
 model Mentor {
-  id           String               @id @default(uuid())
-  name         String
-  email        String               @unique
-  timezone     String
-  active       Boolean              @default(true)
-  createdAt    DateTime             @default(now())
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  timezone  String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
 
   availability MentorAvailability[]
   bookings     Booking[]
@@ -42,11 +42,7 @@ model MentorAvailability {
   startTime String
   endTime   String
 
-  mentor Mentor @relation(
-    fields: [mentorId],
-    references: [id],
-    onDelete: Cascade
-  )
+  mentor Mentor @relation(fields: [mentorId], references: [id], onDelete: Cascade)
 
   @@index([mentorId, dayOfWeek])
 }
@@ -62,17 +58,8 @@ model Booking {
   meetingLink    String        @unique
   createdAt      DateTime      @default(now())
 
-  parent Parent @relation(
-    fields: [parentId],
-    references: [id],
-    onDelete: Restrict
-  )
-
-  mentor Mentor @relation(
-    fields: [mentorId],
-    references: [id],
-    onDelete: Restrict
-  )
+  parent Parent @relation(fields: [parentId], references: [id], onDelete: Restrict)
+  mentor Mentor @relation(fields: [mentorId], references: [id], onDelete: Restrict)
 
   @@unique([mentorId, startTimeUtc])
   @@index([mentorId, startTimeUtc])

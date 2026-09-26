@@ -1,53 +1,22 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
+import "dotenv/config";
 
-const prisma = new PrismaClient();
+const connectionString = `${process.env.DATABASE_URL}`;
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
-const mentors = [
-  {
-    name: "Mentor 1",
-    email: "mentor1@codeyoung.local",
-  },
-  {
-    name: "Mentor 2",
-    email: "mentor2@codeyoung.local",
-  },
-  {
-    name: "Mentor 3",
-    email: "mentor3@codeyoung.local",
-  },
-  {
-    name: "Mentor 4",
-    email: "mentor4@codeyoung.local",
-  },
-  {
-    name: "Mentor 5",
-    email: "mentor5@codeyoung.local",
-  },
-  {
-    name: "Mentor 6",
-    email: "mentor6@codeyoung.local",
-  },
-  {
-    name: "Mentor 7",
-    email: "mentor7@codeyoung.local",
-  },
-  {
-    name: "Mentor 8",
-    email: "mentor8@codeyoung.local",
-  },
-  {
-    name: "Mentor 9",
-    email: "mentor9@codeyoung.local",
-  },
-  {
-    name: "Mentor 10",
-    email: "mentor10@codeyoung.local",
-  },
-];
+const mentors = Array.from({ length: 10 }, (_, index) => ({
+  name: `Mentor ${index + 1}`,
+  email: `mentor${index + 1}@codeyoung.local`,
+}));
 
 async function main() {
-  console.log("Seeding database...");
+  console.log("Starting database seed...");
 
+  // Clear development data.
   await prisma.booking.deleteMany();
   await prisma.parent.deleteMany();
   await prisma.mentorAvailability.deleteMany();
@@ -75,13 +44,15 @@ async function main() {
 
   console.log("Created 10 mentors.");
   console.log("Created Monday-Saturday availability.");
+  console.log("Database seed completed.");
 }
 
 main()
   .catch((error) => {
-    console.error("Seed failed:", error);
+    console.error("Database seed failed:", error);
     process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });
