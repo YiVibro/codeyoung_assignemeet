@@ -23,6 +23,8 @@ export class AvailabilityService {
   async getAvailability(
     date: string,
     parentTimezone: string,
+    from: string,
+    to: string
   ): Promise<AvailabilitySlot[]> {
     if (!isValidTimezone(parentTimezone)) {
       throw new ApiError(
@@ -36,6 +38,46 @@ export class AvailabilityService {
       date,
       parentTimezone,
     );
+
+    const parentRangeStart = DateTime.fromISO(
+  `${date}T${from}`,
+  {
+    zone: parentTimezone,
+    setZone: true,
+  },
+);
+
+const parentRangeEnd = DateTime.fromISO(
+  `${date}T${to}`,
+  {
+    zone: parentTimezone,
+    setZone: true,
+  },
+);
+
+if (!parentRangeStart.isValid || !parentRangeEnd.isValid) {
+  throw new ApiError(
+    400,
+    "INVALID_TIME_RANGE",
+    "Invalid preferred time range.",
+  );
+}
+
+if (parentRangeEnd <= parentRangeStart) {
+  throw new ApiError(
+    400,
+    "INVALID_TIME_RANGE",
+    "Preferred end time must be after start time.",
+  );
+}
+
+const requestedStartUtc =
+  parentRangeStart.toUTC();
+
+const requestedEndUtc =
+  parentRangeEnd.toUTC();
+
+
 
     const today = DateTime.now().setZone(parentTimezone);
 
@@ -146,9 +188,9 @@ export class AvailabilityService {
          */
         if (
           availabilityEnd.toUTC() <=
-            parentDayStartUtc ||
+            requestedStartUtc ||
           availabilityStart.toUTC() >=
-            parentDayEndUtc
+            requestedEndUtc
         ) {
           mentorDate = mentorDate.plus({
             days: 1,
@@ -215,8 +257,8 @@ export class AvailabilityService {
            * inside the parent's requested local day.
            */
           if (
-            slotStartUtc >= parentDayStartUtc &&
-            slotEndUtc <= parentDayEndUtc
+            slotStartUtc >= requestedStartUtc &&
+            slotEndUtc <= requestedEndUtc
           ) {
             const conflictingBooking =
               dayBookings.some((booking) => {

@@ -1,7 +1,16 @@
-backend/.env
+# Backend
 backend/node_modules/
 backend/dist/
+backend/coverage/
 backend/.env
 backend/.env.*
-backend/!.env.example
-backend/coverage/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.*
+
+# Keep example environment files
+!backend/.env.example
+!frontend/.env.example

@@ -41,11 +41,12 @@ const localStart =
   startUtc.setZone(parentTimezone);
 
 
-    /*
-     * MVP uses fixed one-hour slots aligned to the hour.
-     * Example: 10:00 is valid, 10:30 is not.
-     */
-    if (localStart.minute !== 0 || localStart.second !== 0) {
+/*
+ * MVP uses fixed one-hour slots.
+ * The start may be :00 or :30 depending on timezone conversion.
+ */
+
+    if (localStart.second !== 0 || localStart.millisecond !== 0) {
       throw new ApiError(
         400,
         "INVALID_SLOT",

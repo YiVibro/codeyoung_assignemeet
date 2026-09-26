@@ -56,5 +56,12 @@ export class MentorRepository {
   return mentors[0] ?? null;
 }
 
+async findAllActive() {
+  return this.db.mentor.findMany({
+    where: { active: true },
+    orderBy: { name: "asc" },
+  });
+}
+
 }
 

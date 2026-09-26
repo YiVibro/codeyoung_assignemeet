@@ -1,9 +1,9 @@
 const API_URL = "http://localhost:5000/api/bookings";
 
-export{};
+export {};
 
 const requests = Array.from(
-  { length: 5 },
+  { length: 11 },
   (_, index) =>
     fetch(API_URL, {
       method: "POST",
@@ -16,7 +16,7 @@ const requests = Array.from(
           email: `concurrent-${index + 1}@example.com`,
           timezone: "America/New_York",
         },
-        start: "2026-09-29T10:00:00",
+        start: "2026-10-01T10:00:00",
       }),
     }),
 );

@@ -94,4 +94,25 @@ export class MentorController {
       next(error);
     }
   }
+
+  async getMentors(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const mentors = await mentorRepository.findAllActive();
+
+    res.status(200).json({
+      mentors: mentors.map((mentor) => ({
+        id: mentor.id,
+        name: mentor.name,
+        timezone: mentor.timezone,
+      })),
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 }
