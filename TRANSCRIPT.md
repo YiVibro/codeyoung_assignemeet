@@ -1,13 +1,39 @@
+# AI Development Transcript — CodeYoung Trial Booking System
+
+> **Purpose:** This document preserves the AI-assisted development history of the CodeYoung Trial Class Booking System.
+>
+> It contains the actual user prompts/queries and AI responses used during development, followed by implementation, debugging, testing, and design-evolution discussions where those appear in the source transcript.
+>
+> The transcript is organized chronologically for readability. It is **not** rewritten as a retrospective project summary. Design changes and corrections are intentionally retained because they show how the implementation evolved during development.
+>
+
+---
+
+## Contents
+
+1. [Session 1 — Requirements & Architecture]
+2. [Session 2 — Database Schema & Concurrency Design]
+3. [Session 3 — Prisma Schema and Database Setup]
+4. [Session 4 — Availability Engine Design]
+5. [Session 5 — Booking Service and Concurrency Strategy]
+6. [Session 6 — Backend Implementation]
+7. [Session 7 — Booking Endpoint and Transactional Concurrency]
+8. [Session 8 — Frontend Booking Experience]
+9. [Session 9 — End-to-End Testing and Edge-Case Validation]
+
+---
+
 # AI Development Transcript — Codeyoung Trial Booking System
 
-### Using Chatgpt LLM
+> **LLM used:** ChatGPT
 
-## session 1:Requirements & Architecture
-**Date:**25 Sept 2026
+# Session 1 — Requirements & Architecture
+**Date:** 25 Sept 2026
+
 **Goal:** Lock down functional/non-functional requirements and system design before coding
 
-### Prompt
-I'm building a full-stack take-home assignment for a company called Codeyoung. Here's the exact task brief:
+## User Prompt
+I'm building a full-stack assignment for a company called Codeyoung. Here's the exact task brief:
 
 At Codeyoung, parents have the option to book a “trial class” to experience our product and the quality coaching our mentors provide before signing up.
 
@@ -25,7 +51,7 @@ This is the flow parents usually go through:
 
 ·       20 parents interested in booking a trial class per day
 
-Build a web app that parents can use to book this trial class. You should use NodeJS or Python for any backend APIs and React for the frontend.  
+Build a web app that parents can use to book this trial class. You should use NodeJS or Python for any backend APIs and React for the frontend.
 
 Feel free to use any other backend or frontend libraries.
 
@@ -51,12 +77,12 @@ I want to build this as a small, production-quality system, not a toy CRUD app. 
 6. A database schema that stores time as UTC and models mentor availability, capacity, and bookings correctly
 7. What I should deliberately NOT build, given the evaluation criteria explicitly rewards good scoping
 
-Tech constraints: backend in Node.js or Python, frontend in React. I'm comfortable with either JavaScript or TypeScript — recommend which one and explain why given a \~72-hour deadline.
+Tech constraints: backend in Node.js or Python, frontend in React. I'm comfortable with either JavaScript or TypeScript recommend which one and explain why given a \~72-hour deadline.
 
-Don't write implementation code yet — I want the spec and architecture nailed down first so I can review and adjust before we build.
+Don't write implementation code yet ,I want the spec and architecture nailed down first so I can review and adjust before we build.
 es for documentation,you understand right.
 
-### Response
+## AI Response
 The assignment is best approached as a small production-quality appointment-booking system rather than a basic CRUD application. The core engineering challenges are not the React screens themselves, but correctly modeling appointment availability, time zones, daylight-saving transitions, mentor capacity, and concurrent booking attempts.
 
 1. Functional Requirements
@@ -558,12 +584,12 @@ The final system should therefore focus on five things:
 Everything else should remain secondary.
 
 
-## Session 2:Database Schema & Concurrency Design
+# Session 2 — Database Schema & Concurrency Design
 **Date:**25 Sept 2026
-### Prompt
-Give database design and schemas.Also consider concurrency in the design. 
-### Response
-## AI Response — Session 2: Database Schema & Concurrency Design
+## User Prompt
+Give database design and schemas.Also consider concurrency in the design.
+## AI Response
+## AI Response
 
 Now that the requirements are locked down, the next step is to design the database model carefully before implementing the booking API.
 
@@ -722,7 +748,7 @@ A cancelled booking should no longer consume the mentor's daily capacity.
 
 ---
 
-# 7. Important database constraints
+### 7. Important database constraints
 
 The application should not rely entirely on application-level checks.
 
@@ -774,7 +800,7 @@ With Prisma this can be represented using an enum.
 
 ---
 
-# 8. The two-class-per-day rule
+### 8. The two-class-per-day rule
 
 This is harder than the unique constraint.
 
@@ -802,7 +828,7 @@ We therefore need a concurrency-safe strategy.
 
 ---
 
-# 9. Proposed concurrency strategy
+### 9. Proposed concurrency strategy
 
 For this assignment, I would use a **transaction with row-level locking on the mentor**.
 
@@ -836,7 +862,7 @@ This prevents two concurrent requests from both observing the mentor as having o
 
 ---
 
-# 10. Combining row locking with the unique constraint
+### 10. Combining row locking with the unique constraint
 
 We should use both.
 
@@ -876,7 +902,7 @@ The database provides defense in depth.
 
 ---
 
-# 11. Mentor assignment under concurrency
+### 11. Mentor assignment under concurrency
 
 Suppose the requested slot is:
 
@@ -912,7 +938,7 @@ The frontend should translate that into a friendly UI state rather than displayi
 
 ---
 
-# 12. Fixed slot duration simplifies concurrency
+### 12. Fixed slot duration simplifies concurrency
 
 Because we have decided that every trial class is:
 
@@ -946,7 +972,7 @@ That complexity is unnecessary for this assignment.
 
 ---
 
-# 13. Mentor's local calendar day
+### 13. Mentor's local calendar day
 
 This is another important detail.
 
@@ -993,7 +1019,7 @@ This avoids incorrect capacity calculations around UTC midnight.
 
 ---
 
-# 14. Availability calculation
+### 14. Availability calculation
 
 We should not store every possible future slot in the database.
 
@@ -1022,7 +1048,7 @@ This avoids creating thousands of unnecessary slot records.
 
 ---
 
-# 15. Database design
+### 15. Database design
 
 The resulting model is:
 
@@ -1081,7 +1107,7 @@ The resulting model is:
 
 ---
 
-# 16. Prisma model direction
+### 16. Prisma model direction
 
 The Prisma schema should reflect these concepts with:
 
@@ -1107,7 +1133,7 @@ We should let PostgreSQL handle the actual constraints rather than attempting to
 
 ---
 
-# 17. One deliberate design choice
+### 17. One deliberate design choice
 
 I would **not create a `Slot` table** for the initial version.
 
@@ -1139,7 +1165,7 @@ This is easier to maintain and explain.
 
 ---
 
-# 18. Database transaction boundary
+### 18. Database transaction boundary
 
 The transaction should encompass the actual assignment and booking creation.
 
@@ -1165,7 +1191,7 @@ The frontend's availability screen is only a convenience for the user. The booki
 
 ---
 
-# 19. Resulting engineering model
+### 19. Resulting engineering model
 
 The system now has three layers of protection:
 
@@ -1185,12 +1211,12 @@ The system now has three layers of protection:
 This is preferable to relying on any single layer.
 
 
-### Section3:Prisma Schema and Database Setup
+# Session 3 — Prisma Schema and Database Setup
 
-## Prompt
+## User Prompt
 creating the actual Prisma schema, running the first migration, and seeding the 10 mentors with their availability schedules.
 
-## Response
+## AI Response
 ### 1. Prisma schema
 
 The core models should be:
@@ -1665,11 +1691,10 @@ and return slots such as:
 The critical part is that these displayed times are generated using timezone rules rather than hard-coded offsets.
 
 
-### Section 4:Availability Engine Design
-## Prompt
-
-## Response
-## AI Response — Session 4: Availability Engine Design
+# Session 4 — Availability Engine Design
+## User Prompt
+## AI Response
+## AI Response
 
 The next component should be the **availability engine**. This is the bridge between the mentor schedules stored in the database and the slots the parent sees in their own timezone.
 
@@ -1679,7 +1704,7 @@ The important principle is:
 
 ---
 
-# 1. Availability request
+### 1. Availability request
 
 The frontend can request availability with:
 
@@ -1718,7 +1743,7 @@ means:
 
 ---
 
-# 2. Availability calculation
+### 2. Availability calculation
 
 The process is:
 
@@ -1750,7 +1775,7 @@ The backend needs to determine whether at least one mentor can actually accept t
 
 ---
 
-# 3. Mentor-local availability
+### 3. Mentor-local availability
 
 Mentor schedules are defined in their own timezone.
 
@@ -1785,7 +1810,7 @@ because the US offset changes with DST.
 
 ---
 
-# 4. Example
+### 4. Example
 
 Suppose the parent is in:
 
@@ -1833,7 +1858,7 @@ because the booking UI is in the parent's timezone.
 
 ---
 
-# 5. Fixed one-hour slots
+### 5. Fixed one-hour slots
 
 For the MVP, slots should be one hour.
 
@@ -1864,7 +1889,7 @@ This gives us deterministic appointment boundaries.
 
 ---
 
-# 6. DST handling
+### 6. DST handling
 
 This is where the implementation needs to be careful.
 
@@ -1893,7 +1918,7 @@ The library determines the correct UTC offset for that date.
 
 ---
 
-# 7. DST spring-forward edge case
+### 7. DST spring-forward edge case
 
 During a spring-forward transition, some local times do not exist.
 
@@ -1925,7 +1950,7 @@ DST transition dates should still be explicitly tested.
 
 ---
 
-# 8. DST fall-back edge case
+### 8. DST fall-back edge case
 
 During the fall-back transition, an hour can occur twice.
 
@@ -1955,7 +1980,7 @@ and the booking should retain the relevant timezone information for display.
 
 ---
 
-# 9. Existing bookings
+### 9. Existing bookings
 
 After generating a potential appointment instant, the backend checks existing bookings.
 
@@ -1974,7 +1999,7 @@ Cancelled bookings should not block availability.
 
 ---
 
-# 10. Daily capacity
+### 10. Daily capacity
 
 The engine must also check:
 
@@ -1996,7 +2021,7 @@ This is based on the mentor's local date, not the UTC date.
 
 ---
 
-# 11. Returning slots
+### 11. Returning slots
 
 The API shouldn't expose unnecessary internal information.
 
@@ -2040,7 +2065,7 @@ The frontend can format these values for display.
 
 ---
 
-# 12. Availability should not guarantee booking
+### 12. Availability should not guarantee booking
 
 This distinction is extremely important.
 
@@ -2070,7 +2095,7 @@ This prevents a classic time-of-check/time-of-use race condition.
 
 ---
 
-# 13. Better API semantics
+### 13. Better API semantics
 
 I would use:
 
@@ -2100,7 +2125,7 @@ The POST endpoint must independently validate:
 
 ---
 
-# 14. Performance considerations
+### 14. Performance considerations
 
 With only:
 
@@ -2122,7 +2147,7 @@ This is another example of good scope:
 
 ---
 
-# 15. Availability service responsibility
+### 15. Availability service responsibility
 
 I would isolate this logic into something like:
 
@@ -2157,7 +2182,7 @@ This makes the core availability logic testable without running the entire React
 
 ---
 
-# 16. Important testing cases
+### 16. Important testing cases
 
 The availability engine should eventually have tests for:
 
@@ -2200,7 +2225,7 @@ UTC date and mentor local date should not be assumed to be identical.
 
 ---
 
-# 17. One architectural refinement
+### 17. One architectural refinement
 
 There is an important difference between:
 
@@ -2234,7 +2259,7 @@ This separation prevents us from exposing internal mentor assignment unnecessari
 
 ---
 
-# 18. Final availability architecture
+### 18. Final availability architecture
 
 ```text
                   Parent
@@ -2280,12 +2305,10 @@ This separation prevents us from exposing internal mentor assignment unnecessari
 ```
 
 
-## Session 5:Booking Service and Concurrency Strategy
+# Session 5 — Booking Service and Concurrency Strategy
 
-## Prompt
-
-## Response
-
+## User Prompt
+## AI Response
 The availability engine only tells the parent what appears to be available. The next component is the **booking service**, which is the authoritative part of the system.
 
 The critical rule is:
@@ -2296,7 +2319,7 @@ The booking service must re-check everything inside a transaction.
 
 ---
 
-# 1. Booking request
+### 1. Booking request
 
 The frontend should send something conceptually like:
 
@@ -2323,7 +2346,7 @@ It must validate:
 
 ---
 
-# 2. Convert local time to UTC
+### 2. Convert local time to UTC
 
 The requested time is interpreted according to the supplied IANA timezone.
 
@@ -2344,7 +2367,7 @@ The backend should never manually calculate the offset.
 
 ---
 
-# 3. Start a transaction
+### 3. Start a transaction
 
 The critical booking logic happens inside a PostgreSQL transaction.
 
@@ -2374,7 +2397,7 @@ ROLLBACK
 
 ---
 
-# 4. Mentor selection
+### 4. Mentor selection
 
 For the requested instant, the service determines which mentors:
 
@@ -2396,7 +2419,7 @@ The service can choose among Mentors 1, 2, and 4.
 
 ---
 
-# 5. Assignment policy
+### 5. Assignment policy
 
 A reasonable policy is **least-loaded mentor first**.
 
@@ -2416,7 +2439,7 @@ This isn't "ranking" mentors; it is simply an operational allocation rule.
 
 ---
 
-# 6. Locking the mentor
+### 6. Locking the mentor
 
 Once a candidate mentor is selected, the booking transaction should lock the mentor row.
 
@@ -2435,7 +2458,7 @@ After acquiring the lock, the service performs the capacity check again.
 
 ---
 
-# 7. Why the second availability check matters
+### 7. Why the second availability check matters
 
 Suppose:
 
@@ -2489,7 +2512,7 @@ This is the concurrency property we want.
 
 ---
 
-# 8. Database constraint remains the final protection
+### 8. Database constraint remains the final protection
 
 We should still have:
 
@@ -2524,7 +2547,7 @@ with:
 
 ---
 
-# 9. Capacity calculation
+### 9. Capacity calculation
 
 The daily capacity must use the mentor's local calendar day.
 
@@ -2561,7 +2584,7 @@ Cancelled bookings should not consume capacity.
 
 ---
 
-# 10. Booking creation
+### 10. Booking creation
 
 Once all checks pass:
 
@@ -2590,7 +2613,7 @@ There is no need to integrate a real video provider.
 
 ---
 
-# 11. Transaction boundary
+### 11. Transaction boundary
 
 The transaction should cover the critical section:
 
@@ -2617,7 +2640,7 @@ The system should not commit the booking first and then perform critical validat
 
 ---
 
-# 12. What if the selected mentor becomes unavailable?
+### 12. What if the selected mentor becomes unavailable?
 
 The system should not immediately fail if another mentor can handle the booking.
 
@@ -2643,7 +2666,7 @@ with a useful message.
 
 ---
 
-# 13. Idempotency / duplicate submissions
+### 13. Idempotency / duplicate submissions
 
 There is another practical issue:
 
@@ -2673,7 +2696,7 @@ Whether to implement full idempotency-key storage depends on time. It is a usefu
 
 ---
 
-# 14. Error classification
+### 14. Error classification
 
 The API should distinguish expected business conflicts from server failures.
 
@@ -2707,7 +2730,7 @@ The frontend should never display a raw stack trace.
 
 ---
 
-# 15. Booking response
+### 15. Booking response
 
 A successful response can contain:
 
@@ -2732,7 +2755,7 @@ The frontend can convert the UTC timestamps into the appropriate display time.
 
 ---
 
-# 16. Keep notification logic separate
+### 16. Keep notification logic separate
 
 We don't need to actually send email.
 
@@ -2763,7 +2786,7 @@ This demonstrates how real email delivery could be added without coupling the bo
 
 ---
 
-# 17. Booking service responsibilities
+### 17. Booking service responsibilities
 
 The booking service should therefore own:
 
@@ -2796,7 +2819,7 @@ HTTP response
 
 ---
 
-# 18. Final booking architecture
+### 18. Final booking architecture
 
 ```text
                  POST /api/bookings
@@ -2843,9 +2866,9 @@ HTTP response
 
 This gives us a small but genuinely production-minded booking system.
 
-## Session6:Implementation of backend
+# Session 6 — Backend Implementation
 
-## Response
+## AI Response
 The next implementation stage is to build the backend foundation and the availability engine before implementing the booking transaction itself.
 
 1. Backend implementation order
@@ -3136,8 +3159,8 @@ Return confirmation
 
 This is where the previously identified concurrency problem will be handled explicitly rather than relying only on the availability endpoint.
 
-## Session 7:
-## AI Response — Session 7: Booking Endpoint and Transactional Concurrency
+# Session 7 — Booking Endpoint and Transactional Concurrency
+## AI Response
 
 The next stage is to implement the booking workflow. This is the most important backend part of the assignment because availability is only an estimate; the booking operation must be authoritative and safe when multiple parents attempt to book at the same time.
 
@@ -3488,8 +3511,8 @@ PostgreSQL
 Booking Confirmation
 ```
 
-## Session 8:
-## AI Response — Session 8: Frontend Booking Experience
+# Session 8 — Frontend Booking Experience
+## AI Response
 
 The backend now defines the core booking rules, so the next stage is to build the React frontend around the actual customer journey.
 
@@ -3889,7 +3912,7 @@ Mentor sees their local time
 Both have the same dummy meeting link
 ```
 
-## AI Response — Session 9: End-to-End Testing and Edge-Case Validation
+# Session 9 — End-to-End Testing and Edge-Case Validation
 
 Once the frontend and backend are connected, the next priority should be testing the complete system rather than immediately adding more features.
 
@@ -4261,4 +4284,3 @@ Parent + mentor see correct local times
 ```
 
 At that point, additional work should shift from adding features to improving reliability, documentation, UX, testing, and deployment readiness.
-
