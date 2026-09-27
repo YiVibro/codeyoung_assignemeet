@@ -65,20 +65,6 @@ export function localToUtc(
     );
   }
 
-  /*
-   * DST spring-forward protection.
-   *
-   * Luxon normalizes nonexistent times.
-   *
-   * Example:
-   *
-   * 2027-03-14T02:30
-   *       ↓
-   * 2027-03-14T03:30
-   *
-   * Compare the requested wall-clock time with
-   * Luxon's resulting wall-clock time.
-   */
   const requested = localDateTime.match(
     /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?/,
   );
