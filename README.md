@@ -59,7 +59,7 @@ backend/.env
 ```
 Add:
 ```text
-DATABASE_URL="postgresql://codeyoung:codeyoung_dev_password@localhost:5432/codeyoung?schema=public"
+DATABASE_URL="postgresql://codeyoung:codeyoung_password@localhost:5432/codeyoung?schema=public"
 PORT=5000
 ```
 Apply the existing Prisma migrations:
