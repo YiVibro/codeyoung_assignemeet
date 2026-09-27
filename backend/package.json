@@ -1,15 +1,16 @@
 {
-  "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:generate": "prisma generate",
-    "prisma:seed": "prisma db seed",
-    "prisma:studio": "prisma studio"
-  },
+"scripts": {
+  "dev": "tsx watch src/server.ts",
+  "predev": "prisma generate",
+  "build": "tsc",
+  "start": "node dist/server.js",
+  "test": "vitest run",
+  "test:watch": "vitest",
+  "prisma:migrate": "prisma migrate dev",
+  "prisma:generate": "prisma generate",
+  "prisma:seed": "prisma db seed",
+  "prisma:studio": "prisma studio"
+},
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
